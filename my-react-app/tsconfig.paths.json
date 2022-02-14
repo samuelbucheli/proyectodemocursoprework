@@ -1,0 +1,10 @@
+{
+    "compilerOptions": {
+        "baseUrl": "./",
+        "paths": {
+            "@/*": ["src/*"],
+            "mock/*": ["mock/*"],
+            "views/*": ["src/views/*"],
+        }
+    }
+}

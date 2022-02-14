@@ -1,0 +1,68 @@
+#med.yml
+repo:
+    name: your-app #应用的名称，必填项
+    project: your-project #工程名，必填项
+    namespace: default #部署空间，必填项
+
+#prepare 主要作用是将一些不经常变化的部分打包成镜像，为build阶段提高打包效率
+#在此阶段，您可以下载编译依赖、安装必要的组件等操作、
+prepare:
+    - name: prepare #自定义名称，必填项
+      image: library/node:10-lts
+      version: v1.0.0 #prepare版本，必填项
+      workdir: /med #工作目录
+      copy:
+          - . /med
+      run:
+          - cd /med && yarn
+      identityFile: yarn.lock
+
+#build 作用是将工作编译、打包成可供线上正常运行的docker镜像。build默认使用prepare产出的镜像作为基础镜像
+build:
+    - name: build #自定义名称，必填项
+      base: prepare #基于prepare阶段中的prepare-for-build产出的镜像
+      workdir: /med #工作目录
+      copy:
+          - . /med/
+      env:
+          REACT_APP_ENV: production
+      run:
+          - cd /med && yarn build
+
+    - name: release
+      image: library/nginx:2.0
+      copy_from:
+          - build /med/build /med/build
+          - build /med/med/ng.conf /etc/nginx/conf.d/default.conf
+
+    ###############################测试环境####################################
+
+    - name: build-dev
+      base: prepare #基于prepare阶段中的prepare-for-build产出的镜像
+      workdir: /med #工作目录
+      copy:
+          - . /med/
+      env:
+          REACT_APP_ENV: test
+      run:
+          - cd /med && yarn test
+
+    - name: release-dev
+      image: library/nginx:2.0
+      copy_from:
+          - build-dev /med/build /med/build
+          - build-dev /med/med/ng.conf /etc/nginx/conf.d/default.conf
+
+
+deploy:
+    - name: luban #jrtest-bc-jira号，部署后作为自己的测试域名
+      annotations:
+          expiredTime: 50 #过期时间
+      base: release
+      command: nginx -g "daemon off;"
+      replicas: 1
+      rules:
+          - port: 80
+            name: http
+      labels:
+          app: your-project

@@ -1,0 +1,49 @@
+stages:
+    - prepare
+    - build
+    - release
+    - rsync
+
+prepare-image:
+    stage: prepare
+    script:
+        - med prepare -n prepare
+
+build:
+    stage: build
+    only:
+        - online
+    script:
+        - med build -n build
+
+build-release:
+    stage: release
+    only:
+        - online
+    script:
+        - med build -n release
+
+rsync-release:
+    stage: rsync
+    only:
+        - tags
+    script:
+        - med cp release:/med/build .
+        - tar -czvf $CI_PROJECT_NAME-$CI_COMMIT_TAG.tar.gz build
+        - rsync -avzp $CI_PROJECT_NAME-$CI_COMMIT_TAG.tar.gz earthworm.guazi-corp.com::bi/$CI_PROJECT_NAME/
+
+###############################dev####################################
+
+build-dev:
+    stage: build
+    except:
+        - online
+    script:
+        - med build -n build-dev
+
+build-release-dev:
+    stage: release
+    except:
+        - online
+    script:
+        - med build -n release-dev

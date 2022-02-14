@@ -1,0 +1,44 @@
+{
+    "extends": [
+        "airbnb",
+        "airbnb/hooks",
+        "prettier/@typescript-eslint",
+        "plugin:@typescript-eslint/recommended",
+        "prettier"
+    ],
+    "plugins": ["prettier"],
+    "env": {
+        "browser": true
+    },
+    "parserOptions": {
+        "project": "./tsconfig.json"
+    },
+    "rules": {
+        "prettier/prettier": ["error", { "singleQuote": true }],
+        "react/jsx-indent": ["error", 4],
+        "react/jsx-indent-props": ["error", 4],
+        "react/jsx-filename-extension": [
+            "error",
+            { "extensions": [".js", ".jsx", ".ts", ".tsx"] }
+        ],
+        "@typescript-eslint/explicit-function-return-type": 0,
+        "react/jsx-props-no-spreading": 0,
+        "import/no-extraneous-dependencies": 0
+    },
+    "settings": {
+        "import/resolver": {
+            "node": {
+                "extensions": [".js", ".jsx", ".ts", ".tsx"]
+            },
+            "alias": {
+                "map": [["@", "./src"]],
+                "extensions": [".js", ".jsx", ".ts", ".tsx"]
+            }
+        },
+        "react": {
+            "pragma": "React",
+            "version": "detect"
+        }
+    },
+    "parser": "@typescript-eslint/parser"
+}
